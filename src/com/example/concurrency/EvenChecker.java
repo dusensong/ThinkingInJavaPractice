@@ -27,6 +27,11 @@ public class EvenChecker implements Runnable {
         }
     }
 
+    public static void main(String[] args) {
+        System.out.println("Start EvenChecker Test");
+        EvenChecker.test(new EvenGenerator());
+    }
+
     public static void test(IntGenerator intGenerator, int count) {
         ExecutorService exec = Executors.newCachedThreadPool();
         for (int i = 0; i < count; ++i) {
@@ -37,5 +42,39 @@ public class EvenChecker implements Runnable {
 
     public static void test(IntGenerator intGenerator) {
         test(intGenerator, 10);
+    }
+
+    /**
+     * 整数生成器
+     * Created by BG241996 on 2017/8/31.
+     */
+    static abstract class IntGenerator {
+        private volatile boolean cancelled = false;
+
+        public abstract int next();
+
+        public void cancel() {
+            cancelled = true;
+        }
+
+        public boolean isCancelled() {
+            return cancelled;
+        }
+    }
+
+    /**
+     * 偶数生成器
+     * Created by BG241996 on 2017/8/31.
+     */
+    static class EvenGenerator extends IntGenerator {
+        private int currentEvenValue = 0;
+
+        @Override
+        public synchronized int next() {
+            ++currentEvenValue;
+            Thread.yield();
+            ++currentEvenValue;
+            return currentEvenValue;
+        }
     }
 }
